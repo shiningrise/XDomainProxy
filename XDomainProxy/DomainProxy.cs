@@ -11,48 +11,95 @@ namespace XDomainProxy
 {
     public class DomainProxy: IHttpModule
     {
-        public void Dispose() { }
-        public void Init(HttpApplication context)
+        public void Dispose()
+        { }
+
+        /// <summary>
+        /// 验证HttpModule事件机制
+        /// </summary>
+        /// <param name="application"></param>
+        public void Init(HttpApplication application)
         {
-            context.BeginRequest += new EventHandler(Application_BeginRequest);
-            context.EndRequest += new EventHandler(Application_EndRequest);
+            application.BeginRequest += new EventHandler(application_BeginRequest);
+            application.EndRequest += new EventHandler(application_EndRequest);
         }
-        public void Application_BeginRequest(object sender, EventArgs e)
+
+        private void application_BeginRequest(object sender, EventArgs e)
         {
             HttpApplication application = (HttpApplication)sender;
             HttpContext context = application.Context;
-            HttpResponse response = context.Response;
-            string path = context.Request.Path;
-            string file = System.IO.Path.GetFileName(path);
-            ////重写后的URL地址 
-            //Regex regex = new Regex("UserInfo(\\d+).aspx", RegexOptions.Compiled);
-            //Match match = regex.Match(file);
-            ////如果满足URL地址重写的条件 
-            //if (match.Success)
-            //{
-            //    string userId = match.Groups[1].Value;
-            //    string rewritePath = "UserInfo.aspx?UserId=" + userId;
-            //    //将其按照UserInfo.aspx?UserId=123这样的形式重写，确保能正常执行 
-            //    context.RewritePath(rewritePath);
-            //}
+            var request = context.Request;
+            var response = context.Response;
+
+            
+            //    response.Filter = new HtmlStreamFilter(response.Filter, response.ContentEncoding, SetDomainProxy);
+
+            //response.Write("application_BeginRequest<br/>");
+            //request.InputStream.Position = 0;
+            //var streamReader = new StreamReader(request.InputStream);
+            //var text = streamReader.ReadToEnd();
+            //response.Write(text.Replace("hello", "hi"));
         }
-        public void Application_EndRequest(object sender, EventArgs e)
+
+        string DomainProxyUrl = System.Configuration.ConfigurationManager.AppSettings["DomainProxy"].ToString();
+
+        private void application_EndRequest(object sender, EventArgs e)
         {
-            HttpApplication application = sender as HttpApplication;
+            HttpApplication application = (HttpApplication)sender;
             HttpContext context = application.Context;
             var request = context.Request;
-            HttpResponse response = context.Response;
-            response.StatusCode = 200;
+            var response = context.Response;
 
-            response.Write(request.Url.AbsolutePath);
-            response.Write(request.RequestType);
-            response.Write(request.Path);
+            if(request.FilePath.StartsWith("/DomainProxy"))
+            {
+                ProcessDomainProxy(context);
+            }
 
-            request.InputStream.Position = 0;
-            StreamReader reader = new StreamReader(request.InputStream);
-            string text = reader.ReadToEnd();
-            response.Write(text);
-            
+            //response.End();
         }
+
+        public string SetDomainProxy(string text)
+        {
+            text = text.Replace(DomainProxyUrl, "/DomainProxy");
+            return text;
+        }
+
+        public void ProcessDomainProxy(HttpContext context)
+        {
+            var requestUrl = context.Request.Url.PathAndQuery;
+            requestUrl = requestUrl.Replace("/DomainProxy", DomainProxyUrl);
+
+            //实例化web访问类
+            HttpWebRequest request = (HttpWebRequest)WebRequest.Create(requestUrl);
+            request.Method = context.Request.HttpMethod;
+            request.ContentType = context.Request.ContentType;
+
+            string postData = context.Request.Form.ToString();
+            byte[] postdatabytes = Encoding.UTF8.GetBytes(postData);
+            request.ContentLength = postdatabytes.Length;
+            request.AllowAutoRedirect = false;
+            //request.CookieContainer = loginCookie;
+            request.KeepAlive = true;
+            request.UserAgent = context.Request.UserAgent;
+
+            if (context.Request.HttpMethod == "POST")
+            {
+                Stream stream;
+                stream = request.GetRequestStream();
+                stream.Write(postdatabytes, 0, postdatabytes.Length);
+                stream.Close();
+            }
+
+            //接收响应
+            var response = (HttpWebResponse)request.GetResponse();
+            using (StreamReader reader = new StreamReader(response.GetResponseStream(), Encoding.UTF8))
+            {
+                string content = reader.ReadToEnd();
+                context.Response.Write(content);
+                context.Response.StatusCode = (int)response.StatusCode;
+                context.Response.ContentType = response.ContentType;
+            }
+        }
+
     }
 }

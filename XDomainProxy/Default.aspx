@@ -10,7 +10,9 @@
 <body>
     <form id="form1" runat="server">
     <div>
-    
+    <img src="/test.jpg" />
+    1
+        2
     </div>
     </form>
 </body>
