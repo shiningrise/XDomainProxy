@@ -32,7 +32,7 @@ namespace XDomainProxy
             var response = context.Response;
 
             
-            //    response.Filter = new HtmlStreamFilter(response.Filter, response.ContentEncoding, SetDomainProxy);
+            response.Filter = new HtmlStreamFilter(response.Filter, response.ContentEncoding, SetDomainProxy);
 
             //response.Write("application_BeginRequest<br/>");
             //request.InputStream.Position = 0;
