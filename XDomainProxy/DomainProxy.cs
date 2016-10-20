@@ -32,7 +32,7 @@ namespace XDomainProxy
             var response = context.Response;
 
             
-            response.Filter = new HtmlStreamFilter(response.Filter, response.ContentEncoding, SetDomainProxy);
+            //response.Filter = new HtmlStreamFilter(response.Filter, response.ContentEncoding, SetDomainProxy);
 
             //response.Write("application_BeginRequest<br/>");
             //request.InputStream.Position = 0;
@@ -74,7 +74,11 @@ namespace XDomainProxy
             request.Method = context.Request.HttpMethod;
             request.ContentType = context.Request.ContentType;
 
-            string postData = context.Request.Form.ToString();
+            string postData = "";
+            using (StreamReader reader = new StreamReader(context.Request.InputStream, Encoding.UTF8))
+            {
+                postData = reader.ReadToEnd();
+            }
             byte[] postdatabytes = Encoding.UTF8.GetBytes(postData);
             request.ContentLength = postdatabytes.Length;
             request.AllowAutoRedirect = false;
