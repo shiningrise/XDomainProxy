@@ -4,14 +4,29 @@
 
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head runat="server">
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <title></title>
+    <script src="http://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
+
 </head>
 <body>
-    <form id="form1" runat="server">
-    <div>
-    hello
-    </div>
-    </form>
+    <button>点我</button>
+
+    <script>
+        $(document).ready(function () {
+            $("button").click(function () {
+                console.log('ok');
+                $.post("/DomainProxy/Banji/Index", null,
+                function (data, status) {
+                    console.log(data);
+                    alert(status);
+                    //alert("数据: \n" + data + "\n状态: " + status);
+                });
+            });
+        });
+
+        
+    </script>
+
 </body>
 </html>
