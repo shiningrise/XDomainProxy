@@ -16,7 +16,7 @@
         $(document).ready(function () {
             $("button").click(function () {
                 console.log('ok');
-                $.post("/DomainProxy/Banji/Index", null,
+                $.post("/api/base/Banji", null,
                 function (data, status) {
                     console.log(data);
                     alert(status);

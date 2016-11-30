@@ -50,7 +50,7 @@ namespace XDomainProxy
             var request = context.Request;
             var response = context.Response;
 
-            if(request.FilePath.StartsWith("/DomainProxy"))
+            if(request.FilePath.StartsWith("/api/"))
             {
                 ProcessDomainProxy(context);
             }
@@ -60,14 +60,14 @@ namespace XDomainProxy
 
         public string SetDomainProxy(string text)
         {
-            text = text.Replace(DomainProxyUrl, "/DomainProxy");
+            text = text.Replace(DomainProxyUrl, "/api/");
             return text;
         }
 
         public void ProcessDomainProxy(HttpContext context)
         {
             var requestUrl = context.Request.Url.PathAndQuery;
-            requestUrl = requestUrl.Replace("/DomainProxy", DomainProxyUrl);
+            requestUrl = requestUrl.Replace("/api/", DomainProxyUrl);
 
             //实例化web访问类
             HttpWebRequest request = (HttpWebRequest)WebRequest.Create(requestUrl);
