@@ -20,7 +20,8 @@ namespace XDomainProxy
         /// <param name="application"></param>
         public void Init(HttpApplication application)
         {
-            application.BeginRequest += new EventHandler(application_BeginRequest);
+            //application.BeginRequest += new EventHandler(application_BeginRequest);
+            application.EndRequest -= new EventHandler(application_EndRequest);
             application.EndRequest += new EventHandler(application_EndRequest);
         }
 
@@ -50,11 +51,12 @@ namespace XDomainProxy
             var request = context.Request;
             var response = context.Response;
 
-            if(request.FilePath.StartsWith("/api/"))
+            //response.StatusCode == (int)HttpStatusCode.OK
+            if (request.FilePath.StartsWith("/api/"))
             {
                 ProcessDomainProxy(context);
             }
-
+            response.Write(request.HttpMethod);
             //response.End();
         }
 
@@ -99,9 +101,9 @@ namespace XDomainProxy
             using (StreamReader reader = new StreamReader(response.GetResponseStream(), Encoding.UTF8))
             {
                 string content = reader.ReadToEnd();
-                context.Response.Write(content);
                 context.Response.StatusCode = (int)response.StatusCode;
                 context.Response.ContentType = response.ContentType;
+                context.Response.Write(content);
             }
         }
 

@@ -69,6 +69,11 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="app\libs\avalon\arthur.js" />
+    <Content Include="app\libs\avalon\avalon.js" />
+    <Content Include="app\libs\avalon\avalon.modern.js" />
+    <Content Include="app\BaoXiu\add.html" />
+    <Content Include="app\BaoXiu\list.html" />
     <Content Include="index.html" />
     <Content Include="Web.config">
       <SubType>Designer</SubType>

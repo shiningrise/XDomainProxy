@@ -1,0 +1,56 @@
+﻿<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+    <title></title>
+    <link href="http://cdn.amazeui.org/amazeui/2.7.2/css/amazeui.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="../css/app.css">
+</head>
+<body ms-controller="zhiri">
+    <div class="sui-container">
+        <h1>值日安排表</h1>
+        <table class="am-table">
+            <thead><tr><td>报修地址</td><td>内容</td><td>用户</td></tr></thead>
+            <tbody><tr ms-for="(index,zhiri) in @zhiris"><td>{{@zhiri.ADDR}}  </td><td>{{@zhiri.Name}}</td><td>{{@zhiri.UserName}}</td></tr></tbody>
+        </table>
+    </div>
+    <script src="http://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
+    <script src="../libs/avalon/avalon.js"></script>
+    <script>
+        var greasons = [];
+        var vm = avalon.define({
+            $id: "zhiri",
+            zhiris: [],
+            pageindex: 0,
+            url: 'javascript:void(0)',
+            message: '',
+
+            prev: function () {
+                if (vm.pageindex > 0) {
+                    vm.pageindex = vm.pageindex - 1;
+                    vm.list();
+                }
+            },
+            next: function () {
+                vm.pageindex = vm.pageindex + 1;
+                vm.list();
+            },
+            list: function () {
+                $.get("/api/base/BaoXiu", { pageindex: vm.pageindex, pagesize: 100 },
+            	function (data, status) {
+            	    console.log(JSON.stringify(data));
+            	    if (data != null)
+            	        vm.zhiris = data.Data;
+            	});
+            }
+        });
+
+        $(document).ready(function () {
+            vm.list();
+        });
+
+    </script>
+</body>
+</html>

@@ -1,0 +1,98 @@
+﻿<html class="pixel-ratio-1">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>设备报修</title>
+    <meta name="viewport" content="initial-scale=1, maximum-scale=1">
+    <link rel="shortcut icon" href="/favicon.ico">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <link href="/app/css/WeUI.css" rel="stylesheet" />
+    <style>
+        .ms-controller {
+            visibility: hidden;
+        }
+    </style>
+    <!-- Google Web Fonts -->
+</head>
+<body style="background:#fbf9fe" ms-controller="add">
+    <div class="container" id="container">
+
+        <div class="bd">
+            <div class="weui-cell">
+                <div class="weui-cell__hd"><label class="weui-label">报修人姓名</label></div>
+                <div class="weui-cell__bd">
+                    <input class="weui-input" ms-duplex="baoxiumodel.UserName" placeholder="请输入报修人姓名" />
+                </div>
+            </div>
+            <div class="weui-cell weui-cell_select weui-cell_select-after">
+                <div class="weui-cell__hd">
+                    <label for="" class="weui-label">报修分类</label>
+                </div>
+                <div class="weui-cell__bd">
+                    <select class="weui-select" name="select2" ms-duplex="baoxiumodel.BaoXiuTypeId">
+                        <option value="0">请选择</option>
+                        <option ms-for="el in @BaoXiuType" ms-attr="{value:el.Id}">{{el.Name}}</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="weui-cell">
+                <div class="weui-cell__hd"><label class="weui-label">报修地址</label></div>
+                <div class="weui-cell__bd">
+                    <input class="weui-input" ms-duplex="baoxiumodel.ADDR" placeholder="请输入报修地址" />
+                </div>
+            </div>
+
+            <div class="weui-cells__title">报修内容</div>
+            <div class="weui-cells weui-cells_form">
+                <div class="weui-cell">
+                    <div class="weui-cell__bd">
+                        <textarea class="weui-textarea" ms-duplex="baoxiumodel.Name" placeholder="请输入报修内容" rows="3"></textarea>
+                        <div class="weui-textarea-counter"><span>0</span>/200</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="weui-btn-area">
+                <a class="weui-btn weui-btn_primary" href="javascript:" id="showTooltips" ms-click="addBaoXiu()">确定</a>
+            </div>
+
+        </div>
+    </div>
+    <script src="/app/libs/avalon/avalon.js"></script>
+    <script src="http://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
+
+    <script>
+        var vm = avalon.define({
+            $id: "add",
+            BaoXiuType: [],
+            pageindex: 0,
+            baoxiumodel: { "UserName": "", "ADDR": "", "Name": "", "BaoXiuTypeId": "" },
+
+            addBaoXiu: function () {
+                console.log(JSON.stringify(vm.baoxiumodel.$model));
+                $.ajax({
+                    type: "post",
+                    url: "/api/base/BaoXiu",
+                    contentType: "application/json", //必须有
+                    dataType: "json", //表示返回值类型，不必须
+                    data: JSON.stringify(vm.baoxiumodel.$model),  //,
+                    success: function (jsonResult) {
+                        console.log(jsonResult);
+                        alert(jsonResult.msg);
+                    }
+                });
+            }
+        })
+        vm.$watch('onReady', function () {
+            $.get("/api/base/BaoXiuType", { pageindex: vm.pageindex, pagesize: 10 },
+               function (data, status) {
+                   if (data != null) {
+                       vm.BaoXiuType = data.Data;
+                   }
+               });
+        })
+    </script>
+</body>
+</html>
